@@ -1,4 +1,4 @@
-import yt_dlp
+Import yt_dlp
 
 
 def download_video(url, output_dir="downloads"):

@@ -9,7 +9,7 @@ MODEL_ID = "amazon.nova-pro-v1:0"
 
 # Guardrail created in the Bedrock console.
 # Replace with the Guardrail ID and version copied from the console.
-GUARDRAIL_ID = "arn:aws:bedrock:us-east-1:495040113705:guardrail/m64l3j89tui8"
+GUARDRAIL_ID = "<YOUR_GUARDRAIL_ID>"
 GUARDRAIL_VERSION = "1"
 
 SYSTEM_PROMPT = """\
