@@ -21,12 +21,9 @@ MODEL = os.environ.get("WANDERBOT_MODEL", "us.amazon.nova-pro-v1:0")
 SYSTEM_PROMPT = """\
 You are WanderBot, a friendly travel assistant for Horizon Travel.
 
-You remember the user's preferences across sessions (window/aisle, dietary needs,
-travel style, traveling with children). Use any long-term memories provided to
-personalize recommendations. If memories conflict with the user's current request,
-ask for clarification.
-
-When relevant, suggest options tailored to the user's known preferences.
+You remember the user's preferences across sessions. Use any long-term memories
+provided to personalize recommendations. If memories conflict with the user's
+current request, ask for clarification.
 """
 
 app = BedrockAgentCoreApp()
@@ -35,6 +32,7 @@ memory_client = MemoryClient(region_name=REGION)
 
 
 def get_namespaces(memory_client: MemoryClient, memory_id: str):
+    # Fetch strategy namespace templates from the memory resource
     namespaces = {}
     try:
         strategies = memory_client.get_memory_strategies(memory_id)
@@ -53,10 +51,13 @@ class TravelerMemoryHook(HookProvider):
         self.memory_client = memory_client
         self.memory_id = memory_id
         self.namespaces = get_namespaces(memory_client, memory_id)
+        # Keep last user message so we can save the full (USER, ASSISTANT) turn later
         self._last_user_text = None
 
     def register_hooks(self, registry: HookRegistry) -> None:
+        # Retrieve long-term memories before answering
         registry.add_callback(MessageAddedEvent, self._retrieve_travel_context)
+        # Save the completed turn after the agent responds
         registry.add_callback(AfterInvocationEvent, self._save_interaction)
 
     def _get_actor_session(self, event):
@@ -77,6 +78,7 @@ class TravelerMemoryHook(HookProvider):
             return
 
         actor_id, _ = self._get_actor_session(event)
+        # actor_id must be stable (e.g. loyalty id). session_id is not used for long-term memory.
         if not actor_id:
             return
 
@@ -89,6 +91,7 @@ class TravelerMemoryHook(HookProvider):
             return
 
         content = last_message.get("content", [])
+        # Skip if this is a tool result message
         if isinstance(content, list):
             for block in content:
                 if isinstance(block, dict) and block.get("toolResult") is not None:
@@ -106,6 +109,7 @@ class TravelerMemoryHook(HookProvider):
         all_context = []
         for strategy_type, namespace in self.namespaces.items():
             try:
+                # Resolve {actorId} to scope memories per user
                 resolved_ns = namespace.format(actorId=actor_id)
                 resp = self.memory_client.retrieve_memories(
                     memory_id=self.memory_id,
@@ -130,12 +134,13 @@ class TravelerMemoryHook(HookProvider):
         if not all_context:
             return
 
+        # Prepend retrieved memories to the user message before the LLM sees it
         context_block = "Traveller Context:\n" + "\n".join(all_context) + f"\n\n{user_query}"
         content[0]["text"] = context_block
-        logger.info("Injected %d long-term memories for actor_id=%s", len(all_context), actor_id)
 
     def _save_interaction(self, event: AfterInvocationEvent) -> None:
         actor_id, session_id = self._get_actor_session(event)
+        # Save only if we have both ids and the user message from this turn
         if not actor_id or not session_id or not self.memory_id or not self._last_user_text:
             return
 
@@ -143,6 +148,7 @@ class TravelerMemoryHook(HookProvider):
         messages = getattr(agent, "messages", []) if agent else []
         assistant_text = None
 
+        # Find the latest assistant message
         for m in reversed(messages):
             if isinstance(m, dict) and m.get("role") == "assistant":
                 content = m.get("content", [])
@@ -158,6 +164,7 @@ class TravelerMemoryHook(HookProvider):
             return
 
         try:
+            # Persist (USER, ASSISTANT). Extraction is async in AgentCore Memory.
             self.memory_client.create_event(
                 memory_id=self.memory_id,
                 actor_id=actor_id,
@@ -167,7 +174,6 @@ class TravelerMemoryHook(HookProvider):
                     (assistant_text, "ASSISTANT"),
                 ],
             )
-            logger.info("Persisted turn to long-term memory for actor_id=%s", actor_id)
         except Exception as exc:
             logger.warning("create_event failed: %s", exc)
         finally:
@@ -180,7 +186,9 @@ async def invoke(payload: dict, context=None) -> dict:
         raise ValueError("AGENTCORE_MEMORY_ID is required")
 
     user_message = payload.get("message", "Hello!")
+    # session_id comes from AgentCore context and changes per invoke
     session_id = context.session_id
+    # actor_id is the stable user key (e.g. loyalty id)
     actor_id = payload.get("actor_id", "wanderbot-user")
 
     memory_hook = TravelerMemoryHook(
@@ -192,6 +200,7 @@ async def invoke(payload: dict, context=None) -> dict:
         model=MODEL,
         system_prompt=SYSTEM_PROMPT,
         tools=[],
+        # Pass ids to hooks via agent.state
         state={"session_id": session_id, "actor_id": actor_id},
         hooks=[memory_hook],
     )
