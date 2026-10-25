@@ -1,0 +1,181 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Customer support chatbot Bedrock Flow - classifies and routes customer messages
+
+Parameters:
+  ModelId:
+    Type: String
+    Default: us.amazon.nova-pro-v1:0
+    Description: Bedrock model id used by the prompt nodes
+
+Resources:
+
+  FlowExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: bedrock.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: FlowModelAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                Resource: !Sub arn:aws:bedrock:us-east-1::foundation-model/*
+
+  SupportChatbotFlow:
+    Type: AWS::Bedrock::Flow
+    Properties:
+      Name: support-chatbot-flow
+      ExecutionRoleArn: !GetAtt FlowExecutionRole.Arn
+      Definition:
+        Nodes:
+          - Name: FlowInput
+            Type: Input
+            Configuration:
+              Input:
+                Type: Object
+                Properties:
+                  document:
+                    Type: String
+
+          - Name: Classifier
+            Type: Prompt
+            Configuration:
+              Prompt:
+                ModelConfiguration:
+                  ModelId: !Ref ModelId
+                PromptConfiguration:
+                  Type: TEXT
+                  Messages:
+                    - Role: user
+                      Content:
+                        - Text: |
+                            Classify the following customer message into exactly ONE of these categories. Reply with ONLY the category name (BUG_REPORT, PLATFORM_QUESTION, or ANYTHING_ELSE), nothing else.
+
+                            Categories:
+                            - BUG_REPORT: the customer says something on the website or app is broken, failing, crashing, freezing, showing an error, or not working.
+                            - PLATFORM_QUESTION: a question about orders, shipping, returns, refunds, payments, products, accounts, or privacy that is covered by the FAQ.
+                            - ANYTHING_ELSE: any request that is not a bug report and not answerable from the FAQ.
+
+                            Customer message: {{$context.document}}
+
+          - Name: Route
+            Type: Condition
+            Configuration:
+              Condition:
+                Conditions:
+                  - Name: IsBugReport
+                    Type: Equals
+                    Operand: "{{$context.body_of_prompt}}"
+                    EqualTo: BUG_REPORT
+                  - Name: IsPlatformQuestion
+                    Type: Equals
+                    Operand: "{{$context.body_of_prompt}}"
+                    EqualTo: PLATFORM_QUESTION
+                DefaultCondition:
+                  Name: AnythingElse
+
+          - Name: BugReportOutput
+            Type: Output
+            Configuration:
+              Output:
+                Type: String
+                Expression: "{{$nodes.FlowInput.document}} classified as BUG_REPORT"
+
+          - Name: FAQPrompt
+            Type: Prompt
+            Configuration:
+              Prompt:
+                ModelConfiguration:
+                  ModelId: !Ref ModelId
+                PromptConfiguration:
+                  Type: TEXT
+                  Messages:
+                    - Role: user
+                      Content:
+                        - Text: |
+                            Answer the customer's question using ONLY the FAQ document below. Do not invent policies. If the FAQ does not cover the question, respond with exactly: "Please contact human support at 1-800-555-0199 (Mon-Fri)."
+
+                            Customer question: {{$context.document}}
+
+                            FAQ:
+                            - Return policy: You can return most items within 30 days of delivery as long as they're unused and in original packaging.
+                            - Shipping: We ship to most countries. Track your order via the tracking link emailed when it ships.
+                            - Payments: We accept major credit/debit cards and other local methods shown at checkout.
+                            - Support hours: Monday-Friday.
+
+          - Name: PlatformQuestionOutput
+            Type: Output
+            Configuration:
+              Output:
+                Type: String
+                Expression: "{{$nodes.FAQPrompt.body_of_prompt}}"
+
+          - Name: AnythingElsePrompt
+            Type: Prompt
+            Configuration:
+              Prompt:
+                ModelConfiguration:
+                  ModelId: !Ref ModelId
+                PromptConfiguration:
+                  Type: TEXT
+                  Messages:
+                    - Role: user
+                      Content:
+                        - Text: |
+                            The customer's request is not a bug report and is not covered by the FAQ. Respond that you can't help with that here and refer them to human support: "Please contact human support at 1-800-555-0199 (Mon-Fri)."
+
+          - Name: AnythingElseOutput
+            Type: Output
+            Configuration:
+              Output:
+                Type: String
+                Expression: "{{$nodes.AnythingElsePrompt.body_of_prompt}}"
+
+        Connections:
+          - Source: FlowInput
+            SourceOutput: document
+            Target: Classifier
+            TargetInput: document
+
+          - Source: Classifier
+            SourceOutput: body_of_prompt
+            Target: Route
+            TargetInput: condition
+
+          - Source: Route
+            SourceOutput: IsBugReport
+            Target: BugReportOutput
+
+          - Source: Route
+            SourceOutput: IsPlatformQuestion
+            Target: FAQPrompt
+            TargetInput: document
+
+          - Source: FAQPrompt
+            SourceOutput: body_of_prompt
+            Target: PlatformQuestionOutput
+
+          - Source: Route
+            SourceOutput: AnythingElse
+            Target: AnythingElsePrompt
+
+          - Source: AnythingElsePrompt
+            SourceOutput: body_of_prompt
+            Target: AnythingElseOutput
+
+Outputs:
+  FlowId:
+    Description: ID of the Support Chatbot Flow
+    Value: !Ref SupportChatbotFlow
+  FlowArn:
+    Description: ARN of the Support Chatbot Flow
+    Value: !GetAtt SupportChatbotFlow.Arn

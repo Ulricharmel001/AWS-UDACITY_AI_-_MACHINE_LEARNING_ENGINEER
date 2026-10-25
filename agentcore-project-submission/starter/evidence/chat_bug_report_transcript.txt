@@ -1,0 +1,16 @@
+Connected to harness support_chatbot (session e9fb51c2-33d2-4c1b-b0e9-7c8a6d4f5e12-support-chat).
+Type a message, or 'quit' to exit.
+
+you> The checkout page freezes after I click Pay.
+bot> I'm sorry to hear that. Could you tell me more about what happens when you click Pay — do you see any error, or does the page just stop responding?
+
+you> It just freezes. I add items to my cart, click Checkout, then click Pay and it stops responding.
+bot> Thanks, that helps. Which browser are you using?
+
+you> Chrome.
+bot> And what operating system and device are you using?
+
+you> I'm on Windows 11 using a laptop.
+bot> [tool call] bugreports___create_bug_report
+
+Your bug report has been created. The ticket ID is 14d71683-6868-441b-809a-c8c96a9114cf. The engineering team will follow up with you shortly.

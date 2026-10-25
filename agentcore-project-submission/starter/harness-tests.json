@@ -1,0 +1,154 @@
+{
+"tests": [
+{
+"id": "bug_01",
+"prompt": "My app keeps crashing.",
+"expected": "Recognize this as a bug report and ask for the missing bug details without calling the tool yet."
+},
+{
+"id": "bug_02",
+"prompt": "The checkout page is broken.",
+"expected": "Recognize this as a bug report and begin collecting the required bug information."
+},
+{
+"id": "bug_03",
+"prompt": "I cannot log into my account.",
+"expected": "Recognize this as a bug report and ask for the missing information needed to report it."
+},
+{
+"id": "bug_04",
+"prompt": "The payment button does not work.",
+"expected": "Recognize this as a bug report and collect the required bug details."
+},
+{
+"id": "bug_05",
+"prompt": "My shopping cart is not loading.",
+"expected": "Recognize this as a bug report and begin collecting the bug description, reproduction steps, and environment."
+},
+{
+"id": "bug_06",
+"prompt": "The website shows an error when I try to place an order.",
+"expected": "Recognize this as a bug report and ask for the missing details before creating a ticket."
+},
+{
+"id": "bug_07",
+"prompt": "The search feature is not working.",
+"expected": "Recognize this as a bug report and begin collecting the required bug information."
+},
+{
+"id": "bug_08",
+"prompt": "I get an error when opening my orders.",
+"expected": "Recognize this as a bug report and collect the required information without calling the tool prematurely."
+},
+{
+"id": "bug_09",
+"prompt": "The checkout page freezes after I click Pay.",
+"expected": "Recognize this as a bug report and collect the missing details needed to create a ticket."
+},
+{
+"id": "bug_10",
+"prompt": "My account page is not working.",
+"expected": "Recognize this as a bug report and begin collecting the required bug details."
+},
+{
+"id": "faq_01",
+"prompt": "How can I track my order?",
+"expected": "Answer the order tracking question using only the information in the FAQ."
+},
+{
+"id": "faq_02",
+"prompt": "How long does shipping take?",
+"expected": "Answer the shipping question using only the information in the FAQ."
+},
+{
+"id": "faq_03",
+"prompt": "Can I return a product?",
+"expected": "Answer the returns question using only the information in the FAQ."
+},
+{
+"id": "faq_04",
+"prompt": "How do I start a return?",
+"expected": "Answer the return process question using only the information in the FAQ."
+},
+{
+"id": "faq_05",
+"prompt": "Who pays for return shipping?",
+"expected": "Answer using only the FAQ information about return shipping costs."
+},
+{
+"id": "faq_06",
+"prompt": "When will I receive my refund?",
+"expected": "Answer the refund timing question using only the information in the FAQ."
+},
+{
+"id": "faq_07",
+"prompt": "How do I pay for my order?",
+"expected": "Answer the payment question using only the information in the FAQ."
+},
+{
+"id": "faq_08",
+"prompt": "How can I change my account information?",
+"expected": "Answer the account question using only the information in the FAQ."
+},
+{
+"id": "faq_09",
+"prompt": "What payment methods do you accept?",
+"expected": "Answer using only the information in the FAQ."
+},
+{
+"id": "faq_10",
+"prompt": "How do I cancel my order?",
+"expected": "Answer the order cancellation question using only the information in the FAQ."
+},
+{
+"id": "other_01",
+"prompt": "Can you recommend a laptop for me?",
+"expected": "Recognize this as an out-of-scope request and redirect the customer to the human support line."
+},
+{
+"id": "other_02",
+"prompt": "Tell me a joke.",
+"expected": "Recognize this as an unrelated request and redirect the customer to the human support line."
+},
+{
+"id": "other_03",
+"prompt": "What is the weather today?",
+"expected": "Recognize this as an out-of-scope request and redirect the customer to the human support line."
+},
+{
+"id": "other_04",
+"prompt": "Can you help me write a resume?",
+"expected": "Recognize this as an unrelated request and redirect the customer to the human support line."
+},
+{
+"id": "other_05",
+"prompt": "Can you teach me Python?",
+"expected": "Recognize this as an out-of-scope request and redirect the customer to the human support line."
+},
+{
+"id": "other_06",
+"prompt": "Recommend a movie for me.",
+"expected": "Recognize this as an unrelated request and redirect the customer to the human support line."
+},
+{
+"id": "other_07",
+"prompt": "Can you help me choose a phone?",
+"expected": "Recognize this as an out-of-scope request and redirect the customer to the human support line."
+},
+{
+"id": "other_08",
+"prompt": "What is the capital of France?",
+"expected": "Recognize this as an unrelated request and redirect the customer to the human support line."
+},
+{
+"id": "other_09",
+"prompt": "Can you translate this sentence for me?",
+"expected": "Recognize this as an out-of-scope request and redirect the customer to the human support line."
+},
+{
+"id": "other_10",
+"prompt": "Help me plan my vacation.",
+"expected": "Recognize this as an unrelated request and redirect the customer to the human support line."
+}
+]
+}

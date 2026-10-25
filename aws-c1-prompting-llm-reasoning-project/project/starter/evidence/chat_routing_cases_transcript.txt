@@ -1,0 +1,19 @@
+Case 1: PLATFORM QUESTION - FAQ COVERED
+----------------------------------------
+you> What is your return policy?
+bot> According to our return policy (FAQ item 11), you can return most items within 30 days of delivery as long as they're unused and in original packaging (unless the item arrived defective).
+
+Case 2: PLATFORM QUESTION - FAQ COVERED
+----------------------------------------
+you> How do I track my order?
+bot> Once your order ships, we'll email a tracking link. If you have an account, you can also find tracking under My Orders.
+
+Case 3: PLATFORM QUESTION - FAQ NOT COVERED
+----------------------------------------
+you> Can I pay using cryptocurrency?
+bot> According to our FAQ, we currently do not accept cryptocurrency as a payment method. We accept major credit/debit cards and other local methods shown at checkout. Available options can vary by country. If you have further questions about payments, please refer to the FAQ or contact our support team at 1-800-555-0199 (Mon-Fri).
+
+Case 4: OTHER REQUEST - NOT A BUG OR FAQ
+----------------------------------------
+you> Can you recommend a good laptop for video editing?
+bot> I'm sorry, but I can't help with recommending specific laptops for video editing. For personalized recommendations and assistance, please contact our human support line at 1-800-555-0199 (Mon-Fri). They will be able to provide you with the information you need.

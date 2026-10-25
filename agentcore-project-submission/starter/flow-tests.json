@@ -1,0 +1,44 @@
+[
+  {
+    "test_id": "bug_01",
+    "category": "BUG_REPORT",
+    "input": "The website keeps crashing every time I try to checkout. I get a white screen and nothing happens.",
+    "expected_output_contains": "BUG_REPORT",
+    "description": "Bug report: website crashes at checkout"
+  },
+  {
+    "test_id": "faq_covered_01",
+    "category": "PLATFORM_QUESTION",
+    "input": "What is your return policy?",
+    "expected_output_contains": "30 days",
+    "description": "Covered FAQ: return policy should mention 30 days"
+  },
+  {
+    "test_id": "faq_covered_02",
+    "category": "PLATFORM_QUESTION",
+    "input": "How do I track my order?",
+    "expected_output_contains": "tracking",
+    "description": "Covered FAQ: order tracking should mention tracking link"
+  },
+  {
+    "test_id": "faq_uncovered_01",
+    "category": "PLATFORM_QUESTION",
+    "input": "Can I use cryptocurrency to pay for my order?",
+    "expected_output_contains": "1-800-555-0199",
+    "description": "Uncovered FAQ: crypto payment not in FAQ, should return human support number"
+  },
+  {
+    "test_id": "anything_else_01",
+    "category": "ANYTHING_ELSE",
+    "input": "Can you recommend a good laptop for video editing?",
+    "expected_output_contains": "1-800-555-0199",
+    "description": "Anything else: out-of-scope request should return human support number"
+  },
+  {
+    "test_id": "anything_else_02",
+    "category": "ANYTHING_ELSE",
+    "input": "What is the weather like today?",
+    "expected_output_contains": "1-800-555-0199",
+    "description": "Anything else: weather question should return human support number"
+  }
+]
