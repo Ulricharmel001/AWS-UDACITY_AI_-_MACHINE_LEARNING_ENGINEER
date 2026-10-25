@@ -1,16 +1,16 @@
 # AgentCore Browser
 
-WanderBot uses Amazon Bedrock AgentCore Browser to read live content from Wikivoyage and answer destination questions.
+Gives a Strands agent access to AgentCore's managed headless Chromium browser to pull live info from Wikivoyage.
 
 ## Files
-- `starter.py` - Agent with `AgentCoreBrowser`, browser tool passed as `browser.browser`
+- `starter.py` - `BedrockAgentCoreApp` + `Agent` with `AgentCoreBrowser`. Tool passed as `browser.browser`
 - `requirements.txt` - dependencies
 
 ## How it works
-1. `AgentCoreBrowser(region=...)` starts a managed headless Chromium session
-2. The agent uses the browser tool to navigate to `https://en.wikivoyage.org/wiki/<Destination>`
-3. The system prompt restricts browsing to `en.wikivoyage.org` only
-4. The agent extracts specific info (neighbourhoods, highlights, etc.) instead of summarizing the whole page
+- `AgentCoreBrowser(region=REGION)` creates a managed browser session
+- System prompt forces the agent to only browse `https://en.wikivoyage.org` and use `https://en.wikivoyage.org/wiki/<Destination>`
+- Agent extracts specific fields (neighbourhoods, highlights, safety) rather than dumping the whole page
+- `tools=[browser.browser]` (not the `AgentCoreBrowser` instance)
 
 ## Run locally
 ```bash
