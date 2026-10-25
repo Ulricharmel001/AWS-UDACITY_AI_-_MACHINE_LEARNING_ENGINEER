@@ -1,69 +1,27 @@
-# RAG Knowledge Base — WanderBot
+# RAG with Bedrock Knowledge Bases
 
-One Strands tool is the entire RAG integration. `search_knowledge_base` calls
-the Bedrock Agent Runtime **`retrieve`** API with the user's query and joins the
-returned chunks into a single grounding string that the LLM answers from.
+A simple RAG setup using Bedrock Knowledge Bases. A Strands `@tool` wraps `bedrock-agent-runtime.retrieve()` to pull relevant chunks from the KB and ground the agent's answers.
 
 ## Files
+- `starter.py` - `search_knowledge_base` tool + AgentCore app
+- `requirements.txt` - dependencies
+- `SOLUTION.md` - solution notes
 
-| File | Purpose |
-|------|---------|
-| `starter.py` | The `search_knowledge_base` tool + a Strands agent served by `BedrockAgentCoreApp`. |
-| `requirements.txt` | Python dependencies. |
+## How it works
+1. User asks a policy/destination question
+2. The agent calls `search_knowledge_base(query)`
+3. `retrieve()` searches the KB (Titan v2 embeddings) and returns top chunks
+4. The agent answers using only those chunks and quotes exact figures
 
-## How retrieval works
-
-1. The traveller asks, e.g. *"What's the cancellation fee 48 hours before
-   departure?"*
-2. The agent calls `search_knowledge_base(query=...)`.
-3. Bedrock embeds the query with **Titan Text Embeddings v2**, searches the
-   knowledge base's vector store, and returns the top chunks.
-4. The tool joins chunk texts with `\n---\n` and returns them to the model.
-5. The LLM quotes the exact figure from the retrieved policy — no hallucination,
-   no prompt bloat.
-
-If no chunks come back, the tool returns `No information found for: <query>`,
-and the system prompt tells the agent to hand off to human support.
-
-## Configuration
-
-| Variable | Default | Meaning |
-|----------|---------|---------|
-| `KNOWLEDGE_BASE_ID` | `wanderbot-kb-2024-06` | Bedrock Knowledge Base id. Replace with your own. |
-| `AWS_DEFAULT_REGION` | `us-east-1` | Region for the KB and model. |
-| `WANDERBOT_MODEL` | `us.amazon.nova-pro-v1:0` | Bedrock model id. |
-
-Prerequisites: the knowledge base must exist, be `ACTIVE`, and have a vector
-store synced from its S3 data source. AWS credentials must allow
-`bedrock:Retrieve` on that knowledge base.
+## Setup
+1. Upload `travel_policies.txt` and `destination_guides.txt` to S3
+2. Create a Bedrock Knowledge Base pointing to that bucket (Titan Text Embeddings v2, S3 Vectors)
+3. Sync and copy the KB ID
+4. Set `KNOWLEDGE_BASE_ID` and run/deploy
 
 ## Run locally
-
 ```bash
-python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+export KNOWLEDGE_BASE_ID=<your-kb-id>
 python starter.py
 ```
-
-In another terminal:
-
-```bash
-curl -X POST http://localhost:8080/invocations \
-  -H "Content-Type: application/json" \
-  -d '{"message": "What is the cancellation fee 48 hours before departure?"}'
-```
-
-## Deploy to AgentCore Runtime
-
-```bash
-agentcore configure -e starter.py -n WanderBotRAG -dt container \
-  -rf requirements.txt --disable-memory --non-interactive
-agentcore deploy
-agentcore invoke '{"message": "What is the cancellation fee 48 hours before departure?"}'
-```
-
-## Example prompts
-
-- `What's the cancellation fee 48 hours before departure?`
-- `How much checked baggage is included in economy?`
-- `How many points do I earn per dollar with the loyalty programme?`
