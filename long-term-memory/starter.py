@@ -29,7 +29,6 @@ ask for clarification.
 When relevant, suggest options tailored to the user's known preferences.
 """
 
-
 app = BedrockAgentCoreApp()
 
 memory_client = MemoryClient(region_name=REGION)
@@ -181,7 +180,7 @@ async def invoke(payload: dict, context=None) -> dict:
         raise ValueError("AGENTCORE_MEMORY_ID is required")
 
     user_message = payload.get("message", "Hello!")
-    session_id = getattr(context, "session_id", None)
+    session_id = context.session_id
     actor_id = payload.get("actor_id", "wanderbot-user")
 
     memory_hook = TravelerMemoryHook(
