@@ -1,0 +1,6 @@
+[
+  {"origin": "London", "destination": "Tokyo", "flight_number": "BA008", "departure_time": "09:00", "price_usd": 450, "status": "AVAILABLE"},
+  {"origin": "London", "destination": "Tokyo", "flight_number": "JL043", "departure_time": "13:00", "price_usd": 520, "status": "AVAILABLE"},
+  {"origin": "London", "destination": "Tokyo", "flight_number": "NH211", "departure_time": "22:00", "price_usd": 610, "status": "AVAILABLE"},
+  {"origin": "New York", "destination": "Rome", "flight_number": "AA610", "departure_time": "18:00", "price_usd": 680, "status": "AVAILABLE"}
+]

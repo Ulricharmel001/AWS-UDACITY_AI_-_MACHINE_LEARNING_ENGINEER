@@ -1,0 +1,6 @@
+[
+  {"location": "Tokyo", "name": "Central Stay", "price_per_night_usd": 130, "available": true},
+  {"location": "Tokyo", "name": "Plaza Inn", "price_per_night_usd": 165, "available": true},
+  {"location": "Tokyo", "name": "Riverside Hotel", "price_per_night_usd": 190, "available": true},
+  {"location": "Rome", "name": "Colosseum Hotel", "price_per_night_usd": 175, "available": true}
+]
